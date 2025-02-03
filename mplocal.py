@@ -128,7 +128,7 @@ def clamp(value, min_value, max_value):
 async def video_processing_task():
     global tcp_sender, cap, frame,  optical_center, landmarker, button_pressed, initial_point, initial_yaw, initial_pitch, initial_roll, delta_x, delta_y, delta_z
     tcp_sender = TCPSender(HOST, PORT, connection_failed_callback)
-    tcp_sender = None
+    #tcp_sender = None
     base_options = python.BaseOptions(model_asset_path=MODEL_PATH)
     options = vision.FaceLandmarkerOptions(
         base_options=base_options,
