@@ -39,7 +39,7 @@ initial_pitch = 0
 initial_roll = 0
 
 # --- Calibration parameters ---
-# to normalize, idk how the values from facial_transformation_matrixes scales...
+# to normalize, idk how the values from facial_transformation_matrixes works
 x_min = -50
 x_max = 50
 y_min = -40
@@ -79,14 +79,10 @@ def euler_from_matrix(matrix):
 
 
 def y_poly(x):
-  """ This is caliberated from my own face, idk if it works for u"""
-  coefficients = [10.94, 0.01819, -11.95, -7.608, 0] 
-  return np.polyval(coefficients, x)
-  
-def roll_poly(x):
-    # yaw effect's on roll?
-    coefficients = [-0.1121, 0.08556,  0.2624, 0.1843, 0]  
-    return np.polyval(coefficients, x)
+  """ This is ummmm caliberated from my own face, idk if it works for u"""
+  coefficients = [10.94, 0.01819, -11.95, -7.608, 0]  # Coefficients from highest to lowest power
+  return np.polyval(coefficients, x)  # Efficiently evaluates the polynomial
+
 
 def calculate_head_pose_and_position(facial_transformation_matrix, landmarks):
     if facial_transformation_matrix is None or landmarks is None:
@@ -98,15 +94,13 @@ def calculate_head_pose_and_position(facial_transformation_matrix, landmarks):
 
     yaw, pitch, roll = euler_from_matrix(rotation_matrix)
 
-    # Idea: Maybe someone could get livelink data to caliberate this better, i'm just working on assumptions 
-    # works fine without it, but head posititon accuracy will be worse
+
     # Apply the transformation to the translation vector
     temp_val = translation_vector.copy()
     # undo yaw's effect on head pos
     temp_val[0] += np.cos(yaw * np.pi / 2 + np.pi /2) * 3.65
     # undo pitch's effect on head pos
     temp_val[1] -= y_poly(pitch)
-
     
     # Normalize x, y, z to [-1, 1]
     x_norm = (temp_val[0] - x_min) / (x_max - x_min) * 2 - 1
@@ -134,7 +128,7 @@ def clamp(value, min_value, max_value):
 async def video_processing_task():
     global tcp_sender, cap, frame,  optical_center, landmarker, button_pressed, initial_point, initial_yaw, initial_pitch, initial_roll, delta_x, delta_y, delta_z
     tcp_sender = TCPSender(HOST, PORT, connection_failed_callback)
-    # tcp_sender = None
+    tcp_sender = None
     base_options = python.BaseOptions(model_asset_path=MODEL_PATH)
     options = vision.FaceLandmarkerOptions(
         base_options=base_options,
@@ -151,8 +145,8 @@ async def video_processing_task():
     with mp_face_mesh.FaceMesh(
         max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5
     ) as face_mesh:
-        cv2.namedWindow('MP Send')
-        cv2.setMouseCallback("MP Send", mouse_callback)
+        cv2.namedWindow('Video with Face Landmarks')
+        cv2.setMouseCallback("Video with Face Landmarks", mouse_callback)
 
         try:
             print(f"Attempting to open camera source: {CAMERA_SOURCE}")
@@ -212,7 +206,7 @@ async def video_processing_task():
                                     delta_x = clamp(delta_x, -1, 1)
                                     delta_y = clamp(delta_y, -1, 1)
                                     delta_z = clamp(delta_z, -1, 1)
-                                    delta_yaw = clamp(delta_yaw, -1, 1)
+                                    delta_yaw = clamp(delta_yaw, -1, 1)  # -pi to pi radians
                                     delta_pitch = clamp(delta_pitch, -1, 1)
                                     delta_roll = clamp(delta_roll, -1, 1)
                                 else:
@@ -226,7 +220,6 @@ async def video_processing_task():
                                 # --- Draw and display information ---
                                 x_px = int((x_norm + 1) / 2 * display_frame.shape[1])
                                 y_px = int((1 - y_norm) / 2 * display_frame.shape[0])
-                                #this is wrong btw
                                 cv2.circle(display_frame, (x_px, y_px), 10, (0, 255, 0), -1)
 
                                 text_current = f"Current: X: {x_norm:.2f}, Y: {y_norm:.2f}, Z: {z_norm:.2f}"
@@ -300,7 +293,7 @@ async def video_processing_task():
                         if tcp_sender:
                             await tcp_sender.send(json_data)
 
-                    cv2.imshow('MP Send', display_frame)
+                    cv2.imshow('Video with Face Landmarks', display_frame)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
 
@@ -323,7 +316,7 @@ def main():
     video_thread = threading.Thread(target=loop.run_until_complete, args=(video_processing_task(),), daemon=True)
     video_thread.start()
 
-    # Keep the main thread alive
+    # Keep the main thread alive :3
     try:
         while True:
             time.sleep(1)
