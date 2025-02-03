@@ -39,7 +39,7 @@ initial_pitch = 0
 initial_roll = 0
 
 # --- Calibration parameters ---
-# to normalize, idk how the values from facial_transformation_matrixes works
+# to normalize, idk how the values from facial_transformation_matrixes scales...
 x_min = -50
 x_max = 50
 y_min = -40
@@ -99,6 +99,7 @@ def calculate_head_pose_and_position(facial_transformation_matrix, landmarks):
     yaw, pitch, roll = euler_from_matrix(rotation_matrix)
 
     # Idea: Maybe someone could get livelink data to caliberate this better, i'm just working on assumptions 
+    # works fine without it, but head posititon accuracy will be worse
     # Apply the transformation to the translation vector
     temp_val = translation_vector.copy()
     # undo yaw's effect on head pos
