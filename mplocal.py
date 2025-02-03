@@ -226,6 +226,7 @@ async def video_processing_task():
                                 # --- Draw and display information ---
                                 x_px = int((x_norm + 1) / 2 * display_frame.shape[1])
                                 y_px = int((1 - y_norm) / 2 * display_frame.shape[0])
+                                #this is wrong btw
                                 cv2.circle(display_frame, (x_px, y_px), 10, (0, 255, 0), -1)
 
                                 text_current = f"Current: X: {x_norm:.2f}, Y: {y_norm:.2f}, Z: {z_norm:.2f}"
