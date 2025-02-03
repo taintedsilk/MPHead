@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x64</Platforms>
+	
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="assets\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="assets\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetMQ" Version="4.0.0.207" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="dependencies\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="VRCFaceTracking.Core">
+      <HintPath>dependencies\VRCFaceTracking.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+    <ItemGroup>
+    <Reference Include="VRCFaceTracking.SDK">
+      <HintPath>dependencies\VRCFaceTracking.SDK.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
