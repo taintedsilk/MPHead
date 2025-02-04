@@ -17,7 +17,6 @@ FPS = 20
 FRAME_DELAY = 1 / FPS
 HOST = "127.0.0.1"
 PORT = 12345
-RESIZE_FACTOR = 1
 CAMERA_SOURCE = 0  # CHANGE THIS FOR DIFFERENT CAMERAS AAAA IDK HOW TO USE URL
 
 # --- Global Variables ---
@@ -128,7 +127,7 @@ def clamp(value, min_value, max_value):
 async def video_processing_task():
     global tcp_sender, cap, frame,  optical_center, landmarker, button_pressed, initial_point, initial_yaw, initial_pitch, initial_roll, delta_x, delta_y, delta_z
     tcp_sender = TCPSender(HOST, PORT, connection_failed_callback)
-    #tcp_sender = None
+    # tcp_sender = None
     base_options = python.BaseOptions(model_asset_path=MODEL_PATH)
     options = vision.FaceLandmarkerOptions(
         base_options=base_options,
@@ -160,17 +159,16 @@ async def video_processing_task():
                 if cap is not None:
                     start_time = time.time()
                     ret, frame = cap.read()
-                    frame = cv2.flip(frame, 1)
+                    # frame = cv2.flip(frame, 1)
                     if not ret:
                         print("Frame read failed, reinitializing camera...")
                         cap.release()
                         cap = None
                         continue
-
+                    
                     # Get the actual frame dimensions
                     frame_height, frame_width, _ = frame.shape
                     # print(frame_height, frame_width)
-
                     display_frame = frame.copy()
 
                     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -232,7 +230,7 @@ async def video_processing_task():
                                     text_current,
                                     (10, 30),
                                     cv2.FONT_HERSHEY_SIMPLEX,
-                                    0.7,
+                                    0.5,
                                     (0, 255, 0),
                                     2,
                                 )
@@ -241,7 +239,7 @@ async def video_processing_task():
                                     text_pose,
                                     (10, 60),
                                     cv2.FONT_HERSHEY_SIMPLEX,
-                                    0.7,
+                                    0.5,
                                     (0, 255, 0),
                                     2,
                                 )
@@ -250,7 +248,7 @@ async def video_processing_task():
                                     text_delta,
                                     (10, 90),
                                     cv2.FONT_HERSHEY_SIMPLEX,
-                                    0.7,
+                                    0.5,
                                     (0, 255, 0),
                                     2,
                                 )
@@ -259,7 +257,7 @@ async def video_processing_task():
                                     text_delta_pose,
                                     (10, 120),
                                     cv2.FONT_HERSHEY_SIMPLEX,
-                                    0.7,
+                                    0.5,
                                     (0, 255, 0),
                                     2,
                                 )
@@ -281,12 +279,12 @@ async def video_processing_task():
                     if result.face_landmarks:
                         blendshapes = result.face_blendshapes[0]
                         blendshape_dict = {entry.category_name: entry.score for entry in blendshapes}
-                        blendshape_dict["headX"] = delta_x
+                        blendshape_dict["headX"] = -delta_x
                         blendshape_dict["headY"] = delta_y
                         blendshape_dict["headZ"] = delta_z
-                        blendshape_dict["headYaw"] = delta_yaw
+                        blendshape_dict["headYaw"] = -delta_yaw
                         blendshape_dict["headPitch"] = delta_pitch
-                        blendshape_dict["headRoll"] = delta_roll
+                        blendshape_dict["headRoll"] = -delta_roll
 
                         # Send data over TCP
                         json_data = (json.dumps(blendshape_dict) + '\n').encode('utf-8')
