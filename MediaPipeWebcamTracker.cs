@@ -146,7 +146,7 @@ namespace MediaPipeWebcamModule
             if (trackingData.TryGetValue("eyeLookOutLeft", out float eyeLookOutLeft) &&
                 trackingData.TryGetValue("eyeLookInLeft", out float eyeLookInLeft))
             {
-                UnifiedTracking.Data.Eye.Left.Gaze.x = (eyeLookOutLeft - eyeLookInLeft);
+                UnifiedTracking.Data.Eye.Left.Gaze.x = -(eyeLookOutLeft - eyeLookInLeft);
             }
 
             if (trackingData.TryGetValue("eyeLookUpLeft", out float eyeLookUpLeft) &&
@@ -158,7 +158,7 @@ namespace MediaPipeWebcamModule
             if (trackingData.TryGetValue("eyeLookInRight", out float eyeLookInRight) &&
                 trackingData.TryGetValue("eyeLookOutRight", out float eyeLookOutRight))
             {
-                UnifiedTracking.Data.Eye.Right.Gaze.x = (eyeLookInRight - eyeLookOutRight);
+                UnifiedTracking.Data.Eye.Right.Gaze.x = -(eyeLookInRight - eyeLookOutRight);
             }
 
             if (trackingData.TryGetValue("eyeLookUpRight", out float eyeLookUpRight) &&
